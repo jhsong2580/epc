@@ -1,0 +1,32 @@
+spring:
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 2000
+  datasource:
+    url: jdbc:mysql://211.254.213.210:3306/toyEPC?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    username: root
+    password: 123456789a
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  batch:
+    job:
+      enabled: false #command line runner 설정 해제   (어플리케이션 구동시점에 특정 작업이 실행될 수 있도록 해주는 역할)-
+    jdbc:
+      initialize-schema: always
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update  #app 실행시점에 내가가지고있는 entity 다 지우고 재생성
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100 #lazy join 시 fetch 할때 100개를 묶어서 실행
+        #        show_sql: true   sout 으로 출력
+        format_sql: true
+    open-in-view: false # 영속성 context가 repository/service내에서만 생존
+
+
+logging.level:
+  org.hibernate.SQL: debug
+  org.hibernate.type: trace
