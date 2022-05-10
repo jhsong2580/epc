@@ -10,8 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import toy.epc.exception.UserControllerException;
+import toy.epc.user.domain.Power;
 import toy.epc.user.domain.User;
 import toy.epc.user.form.LoginForm;
+import toy.epc.user.form.RegisterForm;
 import toy.epc.user.jwtUtils.JwtTokenProvider;
 import toy.epc.user.repository.JpaUserRepository;
 
@@ -42,4 +45,18 @@ public class LoginService {
     }
 
 
+    @Transactional
+    public void createUser(RegisterForm registerForm) {
+
+        User user = new User(registerForm.getIdentification(),
+            passwordEncoder.encode(registerForm.getPassword()), registerForm.getEmail(),
+            registerForm.getHandPhone(), Power.USER, registerForm.getCity(), registerForm.getGu());
+
+        try {
+            jpaUserRepository.save(user);
+        } catch (Exception e) {
+            throw new UserControllerException("계정생성중 문제가 발생하였습니다 - " + e);
+          
+        }
+    }
 }

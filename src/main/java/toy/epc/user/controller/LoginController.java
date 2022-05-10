@@ -48,5 +48,25 @@ public class LoginController {
         return "user/login";
     }
 
+    @GetMapping("/register")
+    public String registerPage(@ModelAttribute RegisterForm registerForm) {
+        return "user/register";
+    }
 
+    @PostMapping("/register")
+    public String registerUser(@ModelAttribute RegisterForm registerForm,
+        BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "user/register";
+        }
+
+        Optional<User> userOptional = userService.getUserByIdentification(
+            registerForm.getIdentification());
+        if (userOptional.isPresent()) {
+            bindingResult.addError(new ObjectError("RegisterForm", "아이디가 중복됩니다"));
+        }
+        loginService.createUser(registerForm);
+
+        return "redirect:/login";
+    }
 }
