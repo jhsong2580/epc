@@ -31,11 +31,15 @@ public class LoginService {
     public User checkValidateUser(LoginForm loginForm) {
         Optional<User> userOptional = jpaUserRepository.findByIdentification(
             loginForm.getIdentification());
-        if (userOptional.isEmpty() || passwordEncoder.matches(loginForm.getPassword(),
-            userOptional.get().getPassword())) {
+        if (userOptional.isEmpty() || passwordNotMatch(loginForm, userOptional)) {
             return null;
         }
         return userOptional.get();
+    }
+
+    private boolean passwordNotMatch(LoginForm loginForm, Optional<User> userOptional) {
+        return !passwordEncoder.matches(loginForm.getPassword(),
+            userOptional.get().getPassword());
     }
 
     public void addJwtTokenToCookie(HttpServletResponse response, User user) {
@@ -56,7 +60,7 @@ public class LoginService {
             jpaUserRepository.save(user);
         } catch (Exception e) {
             throw new UserControllerException("계정생성중 문제가 발생하였습니다 - " + e);
-          
+
         }
     }
 }
