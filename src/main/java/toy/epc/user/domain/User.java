@@ -42,13 +42,12 @@ public class User extends BaseTimeEntity {
     @NotEmpty(message = "must not empty")
     private String handPhone;
 
-    @NotEmpty(message = "must not empty")
     @Enumerated(value = STRING)
     private Power power;
 
-    public User(Location location, String identification, String password, String email,
-        String handPhone, Power power) {
-        this.location = location;
+    public User (String identification, String password, String email,
+        String handPhone, Power power,String city, String gu) {
+        this.location = new Location(this,city, gu);
         this.identification = identification;
         this.password = password;
         this.email = email;
