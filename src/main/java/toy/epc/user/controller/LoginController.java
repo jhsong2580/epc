@@ -32,8 +32,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String validateLogin(@Valid @ModelAttribute LoginForm loginForm,
-        BindingResult bindingResult, HttpServletResponse response,
+    public String validateLogin(@Valid @ModelAttribute LoginForm loginForm, BindingResult bindingResult, HttpServletResponse response,
         @RequestParam(defaultValue = "/") String redirect) {
         if (bindingResult.hasErrors()) {
             return "user/login";
@@ -54,19 +53,23 @@ public class LoginController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute RegisterForm registerForm,
-        BindingResult bindingResult) {
+    public String registerUser(@ModelAttribute RegisterForm registerForm, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "user/register";
         }
 
-        Optional<User> userOptional = userService.getUserByIdentification(
-            registerForm.getIdentification());
+        Optional<User> userOptional = userService.getUserByIdentification(registerForm.getIdentification());
         if (userOptional.isPresent()) {
             bindingResult.addError(new ObjectError("RegisterForm", "아이디가 중복됩니다"));
         }
         loginService.createUser(registerForm);
 
+        return "redirect:/login";
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse response) {
+        loginService.deleteJwtTokenFromCookie(response);
         return "redirect:/login";
     }
 }

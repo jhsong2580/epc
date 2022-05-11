@@ -29,8 +29,7 @@ public class LoginService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public User checkValidateUser(LoginForm loginForm) {
-        Optional<User> userOptional = jpaUserRepository.findByIdentification(
-            loginForm.getIdentification());
+        Optional<User> userOptional = jpaUserRepository.findByIdentification(loginForm.getIdentification());
         if (userOptional.isEmpty() || passwordNotMatch(loginForm, userOptional)) {
             return null;
         }
@@ -38,8 +37,7 @@ public class LoginService {
     }
 
     private boolean passwordNotMatch(LoginForm loginForm, Optional<User> userOptional) {
-        return !passwordEncoder.matches(loginForm.getPassword(),
-            userOptional.get().getPassword());
+        return !passwordEncoder.matches(loginForm.getPassword(), userOptional.get().getPassword());
     }
 
     public void addJwtTokenToCookie(HttpServletResponse response, User user) {
@@ -52,8 +50,7 @@ public class LoginService {
     @Transactional
     public void createUser(RegisterForm registerForm) {
 
-        User user = new User(registerForm.getIdentification(),
-            passwordEncoder.encode(registerForm.getPassword()), registerForm.getEmail(),
+        User user = new User(registerForm.getIdentification(), passwordEncoder.encode(registerForm.getPassword()), registerForm.getEmail(),
             registerForm.getHandPhone(), Power.USER, registerForm.getCity(), registerForm.getGu());
 
         try {
@@ -62,5 +59,11 @@ public class LoginService {
             throw new UserControllerException("계정생성중 문제가 발생하였습니다 - " + e);
 
         }
+    }
+
+    public void deleteJwtTokenFromCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", "");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }
