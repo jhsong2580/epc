@@ -3,6 +3,7 @@ package toy.epc.user.jwtUtils;
 import static toy.epc.user.jwtUtils.JwtConstant.JWT_EXPIRE_TIME;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -59,10 +60,11 @@ public class JwtTokenProvider {
     public Boolean validateToken(String token) {
         Boolean isValid = true;
         try {
-            isValid = decodeToken(token).getBody().getExpiration().before(new Date());
+            isValid = decodeToken(token).getBody().getExpiration().after(new Date());
+        } catch (ExpiredJwtException e) {
+            isValid = false;
         } catch (Exception e) {
             isValid = false;
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다");
         } finally {
             return isValid;
         }
