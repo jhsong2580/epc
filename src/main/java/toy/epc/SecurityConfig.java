@@ -12,12 +12,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import toy.epc.user.jwtUtils.JwtAuthenticationEntryPoint;
 import toy.epc.user.jwtUtils.JwtAuthenticationFilter;
+import toy.epc.user.jwtUtils.JwtTokenProvider;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final String[] whitelist = {"/login", "/register", "/logout", "/error", "/js/"};
+    private final String[] whitelistPage = {"/login", "/register"};
+    private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
@@ -27,13 +30,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-            .sessionCreationPolicy(STATELESS).and().authorizeRequests()
-            .antMatchers("/login**", "/register**", "logout**", "/error**", "/js/**").permitAll()
-            .anyRequest().authenticated()
-            .and()
-            .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+            .sessionCreationPolicy(STATELESS).and().authorizeRequests().antMatchers("/login**", "/register**", "/logout**", "/error**", "/js/**")
+            .permitAll().anyRequest().authenticated().and()
+            .addFilterAfter(new JwtAuthenticationFilter(whitelist, whitelistPage, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            //  .addFilterBefore(new AccessWhitelistWithTokenRedirectHome(whitelistPage, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
             .logout().disable().formLogin().disable();
     }
 }
