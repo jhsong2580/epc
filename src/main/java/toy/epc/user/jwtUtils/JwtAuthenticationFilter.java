@@ -19,26 +19,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
         log.info("filter access = {}", request.getRequestURI());
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
 
-        if (token != null && jwtTokenProvider.validateToken(token) && !urlIsWhitelist(request)) {
+        if (accessAuthRequirePageWithValidateToken(request, token)) {
             SecurityContextHolder.getContext()
                 .setAuthentication(jwtTokenProvider.getAuthentication(token));
         }
-        checkAccessWhitelistWithValidToken(request, response, token);
+
         log.info("filter access end= {}", request.getRequestURI());
         filterChain.doFilter(request, response);
     }
 
-    private void checkAccessWhitelistWithValidToken(HttpServletRequest request,
-        HttpServletResponse response, String token)
-        throws IOException {
-        if (token != null && jwtTokenProvider.validateToken(token) && urlIsWhitelist(request)) {
-            response.sendRedirect("/");
-        }
+    private boolean accessAuthRequirePageWithValidateToken(HttpServletRequest request, String token) {
+        return token != null && jwtTokenProvider.validateToken(token) && !urlIsWhitelist(request);
     }
 
     private boolean urlIsWhitelist(HttpServletRequest request) {
